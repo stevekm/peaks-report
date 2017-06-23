@@ -1,0 +1,108 @@
+---
+title: "Peaks per Sample Report"
+author: "`r system('whoami', intern = TRUE)`"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    keep_md: true
+    df_print: paged
+params:
+   input_dir: "/path/to/peaks_dir"
+---
+
+```{r setup, include=FALSE}
+# ~~~~~ CHUNK OPTIONS ~~~~~ # 
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+# ~~~~~ LIBRARIES ~~~~~ # 
+library("ggplot2")
+library("reshape2")
+library("DT")
+library("scales")
+
+# ~~~~~ FUNCTIONS ~~~~~ # 
+find_all_beds <- function (input_dirs, name_pattern = FALSE) {
+    # find all .bed files in the supplied dirs
+    bed_files <- dir(input_dirs, pattern = '.bed', full.names = TRUE, recursive = TRUE)
+    if(name_pattern != FALSE) bed_files <- bed_files[which(basename(bed_files) %in% as.character(name_pattern))]
+    return(bed_files)
+}
+
+get_numlines <- function(input_file) {
+    # count the number of lines in a file
+    return(length(readLines(input_file)))
+}
+
+mycat <- function(text){
+    # function for formatting text in the report
+    cat(gsub(pattern = "\n", replacement = "  \n", x = text))
+}
+
+split_sampleID_col <- function(df, new_colnames = NA, sample_colname = "sample", split_char = "-"){
+    # split the 'sample' column in the df into separate columns, return the new df with all columns
+    split_df <- as.data.frame(do.call(rbind, strsplit(x = df[[sample_colname]], split = split_char)))
+    if (! is.na(new_colnames)) colnames(split_df) <- new_colnames
+    df <- cbind(split_df, df)
+    return(df)
+}
+
+make_bed_df <- function(input_dir){
+    # create a dataframe from the bed files found in the dir
+    bed_files <- find_all_beds(input_dirs = input_dir, name_pattern = "peaks.bed") 
+    
+    # sample ID is saved in the dirname of each bed file
+    samples <- basename(dirname(bed_files))
+    
+    bed_df <- data.frame(sample = basename(dirname(bed_files)), 
+                         peaks = sapply(X = bed_files, FUN = get_numlines), 
+                         # file = bed_files, 
+                         stringsAsFactors = FALSE)
+    
+    # split the sample ID's into separate columns
+    bed_df <- split_sampleID_col(df = bed_df, new_colnames = c("patient", "status", "mark")) # ABC-R-H3K9AC
+    
+    # reindex the rownames
+    rownames(bed_df) <- seq(nrow(bed_df))
+    return(bed_df)
+}
+
+make_peaks_barplot <- function(df){
+    # make the ggplot bar plot
+    
+    # re order the df
+    # bed_df[order(bed_df[["peaks"]], decreasing = TRUE), ]
+    
+    peaks_barplot <- ggplot(data = df, aes(x = sample, y = peaks)) + geom_bar(stat = 'identity') + coord_flip() + ggtitle("Peaks per Sample") + scale_y_continuous(labels = comma)
+    
+    return(peaks_barplot)
+}
+
+
+# ~~~~~ GLOBALS ~~~~~ #
+input_dir <- normalizePath(params$input_dir)
+
+bed_df <- make_bed_df(input_dir = input_dir)
+
+peaks_barplot <- make_peaks_barplot(df = bed_df)
+```
+
+# Input dir
+
+```{r}
+mycat(input_dir)
+```
+
+# Peaks per Sample
+
+## Plot
+
+```{r, fig.height = 18}
+peaks_barplot
+```
+
+## Table
+
+```{r}
+datatable(data = bed_df, rownames = FALSE, options = list(pageLength = -1))
+```
+
