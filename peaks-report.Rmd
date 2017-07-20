@@ -8,6 +8,8 @@ output:
     df_print: paged
 params:
    input_dir: "/path/to/peaks_dir"
+   plot_height: 12
+   plot_width: 10
 ---
 
 ```{r setup, include=FALSE}
@@ -75,14 +77,19 @@ make_peaks_barplot <- function(df){
     
     return(peaks_barplot)
 }
+```
 
-
+```{r load_data, cache=TRUE, include=FALSE}
 # ~~~~~ GLOBALS ~~~~~ #
 input_dir <- normalizePath(params$input_dir)
+plot_height <- as.numeric(params$plot_height)
+plot_width <- as.numeric(params$plot_width)
 
 bed_df <- make_bed_df(input_dir = input_dir)
 
 peaks_barplot <- make_peaks_barplot(df = bed_df)
+
+save.image(file = "loaded_data.Rdata", compress = TRUE)
 ```
 
 # Input dir
@@ -95,7 +102,7 @@ mycat(input_dir)
 
 ## Plot
 
-```{r, fig.height = 18}
+```{r, fig.height = plot_height, fig.width = plot_width}
 peaks_barplot
 ```
 
