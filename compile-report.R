@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 ## USAGE: compile_RMD_report.R report.Rmd
+## EXAMPLE: ./compile-report.R -n "peaks.by_sample.macs_broad" --height 42 --width 12 results/peaks.by_sample.macs_broad
 ## Requires pandoc version 1.13+
 # module load pandoc/1.13.1
 
@@ -15,7 +16,7 @@ library("tools")
 
 # ~~~~~ GET SCRIPT ARGS ~~~~~~~ #
 option_list <- list(
-    make_option(c("-n", "--name"), type="character", default=FALSE,
+    make_option(c("-n", "--name"), type="character", default='peaks-report',
                 dest="report_name", help="A different output name to use for the report file (excluding file extension)"),
     make_option(c("--height"), type="numeric", default=12,
                 dest = "plot_height", help="Height for boxplot [default %default]",
@@ -45,4 +46,5 @@ if(report_name != FALSE){
 }
 rmarkdown::render(input = Rmdfile, params = list(input_dir = input_dir, 
                                                  plot_height = plot_height, 
-                                                 plot_width = plot_width))
+                                                 plot_width = plot_width,
+                                                 report_name = report_name))

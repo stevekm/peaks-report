@@ -10,6 +10,7 @@ params:
    input_dir: "/path/to/peaks_dir"
    plot_height: 12
    plot_width: 10
+   report_name: "peaks_report"
 ---
 
 ```{r setup, include=FALSE}
@@ -85,12 +86,14 @@ make_peaks_barplot <- function(df){
 input_dir <- normalizePath(params$input_dir)
 plot_height <- as.numeric(params$plot_height)
 plot_width <- as.numeric(params$plot_width)
+report_name <- as.character(params$report_name)
 
 bed_df <- make_bed_df(input_dir = input_dir)
 
 peaks_barplot <- make_peaks_barplot(df = bed_df)
 
 save.image(file = "loaded_data.Rdata", compress = TRUE)
+write.table(x = bed_df, file = sprintf("%s.csv", report_name), quote = FALSE, sep = ',', row.names = FALSE, col.names = TRUE)
 ```
 
 # Input dir
