@@ -1,6 +1,8 @@
 # peaks-report
 A quick R Markdown HTML report template that will make a barplot and table with the number of peaks in all `peaks.bed` files in the target dir. 
 
+__[[Example Output [here](https://cdn.rawgit.com/stevekm/peaks-report/example-output/example_output/peaks-report.html)]]__
+
 # Usage
 
 ```bash
