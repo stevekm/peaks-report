@@ -16,7 +16,7 @@ library("tools")
 
 # ~~~~~ GET SCRIPT ARGS ~~~~~~~ #
 option_list <- list(
-    make_option(c("-n", "--name"), type="character", default='peaks-report',
+    make_option(c("-n", "--name"), type="character", default=FALSE,
                 dest="report_name", help="A different output name to use for the report file (excluding file extension)"),
     make_option(c("--height"), type="numeric", default=12,
                 dest = "plot_height", help="Height for boxplot [default %default]",
